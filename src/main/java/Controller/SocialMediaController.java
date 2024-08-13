@@ -2,6 +2,8 @@ package Controller;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import Service.AccountService;
+import Service.MessageService;
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
@@ -9,6 +11,10 @@ import io.javalin.http.Context;
  * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
  */
 public class SocialMediaController {
+
+    private final AccountService accountService = new AccountService();
+    private final MessageService messageService = new MessageService();
+
     /**
      * In order for the test cases to work, you will need to write the endpoints in the startAPI() method, as the test
      * suite must receive a Javalin object from this method.
@@ -31,37 +37,68 @@ public class SocialMediaController {
     }
 
     private void registerUser(Context context){
-
+        try {
+            
+        } catch (Exception e) {
+            
+        }
     }
 
     private void loginUser(Context context){
-
+        try {
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     private void createMessage(Context context){
-
+        try {
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
     
     private void getAllMessages(Context context){
-
+        try {
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
     
     private void getMessageById(Context context){
-
+        try {
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
     
     private void deleteMessageById(Context context){
-
+        try {
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
-
     
     private void updateMessageById(Context context){
-
+        try {
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     
     private void getMessagesByUserId(Context context){
-
+        try {
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
 
