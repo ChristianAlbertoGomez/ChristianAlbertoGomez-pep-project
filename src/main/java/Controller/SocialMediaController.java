@@ -18,8 +18,53 @@ public class SocialMediaController {
         Javalin app = Javalin.create();
         app.get("example-endpoint", this::exampleHandler);
 
+        app.post("/register", this::registerUser);
+        app.post("login",this::loginUser);
+        app.post("/messages", this::createMessage);
+        app.get("/messages", this::getAllMessages);
+        app.get("/messages/:message_id", this::getMessageById);
+        app.delete("/messages/:message_id", this::deleteMessageById);
+        app.patch("/messages/:message_id", this::updateMessageById);
+        app.get("/accounts/:account_id/messages", this::getMessagesByUserId);
+
         return app;
     }
+
+    private void registerUser(Context context){
+
+    }
+
+    private void loginUser(Context context){
+
+    }
+
+    private void createMessage(Context context){
+
+    }
+    
+    private void getAllMessages(Context context){
+
+    }
+    
+    private void getMessageById(Context context){
+
+    }
+    
+    private void deleteMessageById(Context context){
+
+    }
+
+    
+    private void updateMessageById(Context context){
+
+    }
+
+    
+    private void getMessagesByUserId(Context context){
+
+    }
+
+
 
     /**
      * This is an example handler for an example endpoint.
