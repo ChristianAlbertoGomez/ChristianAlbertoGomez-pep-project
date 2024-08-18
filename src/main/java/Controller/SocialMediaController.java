@@ -80,16 +80,29 @@ public class SocialMediaController {
     private void createMessage(Context context) {
         try {
             Message message = context.bodyAsClass(Message.class);
-            if (message.getMessage_text().isEmpty() || message.getMessage_text().length() > 255) {
+    
+            // Validate message text
+            if (message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() > 255) {
                 context.status(400).result("Message text cannot be empty and must be under 255 characters.");
                 return;
             }
+    
+            // Validate user existence
+            if (!accountService.doesAccountExist(message.getPosted_by())) {
+                context.status(400).result("User does not exist.");
+                return;
+            }
+    
+            // Create message
             Message createdMessage = messageService.createMessage(message);
+    
             if (createdMessage != null) {
-                context.status(201).json(createdMessage);
+                context.status(200).json(createdMessage); // Changed from 201 to 200 to match test cases
             } else {
                 context.status(400).result("Message creation failed.");
             }
+        } catch (IllegalArgumentException e) {
+            context.status(400).result(e.getMessage());
         } catch (Exception e) {
             context.status(500).result("Error creating message: " + e.getMessage());
         }

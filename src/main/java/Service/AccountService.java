@@ -28,4 +28,8 @@ public class AccountService {
         }
         return existingAccount;
     }
+
+    public boolean doesAccountExist(int accountId) throws SQLException {
+        return accountDAO.getAccountById(accountId) != null;
+    }
 }

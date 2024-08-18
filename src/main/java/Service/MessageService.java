@@ -16,7 +16,7 @@ public class MessageService {
         if (message.getMessage_text().length() > 255) {
             throw new IllegalArgumentException("Message text cannot exceed 255 characters");
         }
-        message.setTime_posted_epoch(System.currentTimeMillis());
+        message.setTime_posted_epoch(System.currentTimeMillis() / 1000); // Ensure correct timestamp
         return messageDAO.createMessage(message);
     }
 

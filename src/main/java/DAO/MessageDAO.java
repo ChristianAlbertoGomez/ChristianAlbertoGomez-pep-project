@@ -12,15 +12,14 @@ public class MessageDAO {
      */
 
     public Message createMessage(Message message) throws SQLException {
-
         String query = "INSERT INTO Message (posted_by, message_text, time_posted_epoch) VALUES (?, ?, ?)";
         try (Connection conn = ConnectionUtil.getConnection(); 
-            PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, message.getPosted_by());
             pstmt.setString(2, message.getMessage_text());
             pstmt.setLong(3, message.getTime_posted_epoch());
             pstmt.executeUpdate();
-
+    
             try (ResultSet rs = pstmt.getGeneratedKeys()) {
                 if (rs.next()) {
                     message.setMessage_id(rs.getInt(1));
