@@ -13,7 +13,6 @@ public class SocialMediaController {
     private final AccountService accountService = new AccountService();
     private final MessageService messageService = new MessageService();
 
-
     public Javalin startAPI() {
         Javalin app = Javalin.create();
         app.get("/example-endpoint", this::exampleHandler);
@@ -82,29 +81,29 @@ public class SocialMediaController {
             Message message = context.bodyAsClass(Message.class);
     
             // Validate message text
-            if (message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() > 255) {
-                context.status(400).result("Message text cannot be empty and must be under 255 characters.");
+            if (message.getMessage_text().trim().isEmpty() || message.getMessage_text().length() > 255) {
+                context.status(400).result("");
                 return;
             }
     
-            // Validate user existence
+            // Check if the account exists
             if (!accountService.doesAccountExist(message.getPosted_by())) {
-                context.status(400).result("User does not exist.");
+                context.status(400).result("");
                 return;
             }
     
-            // Create message
+            // Create the message
             Message createdMessage = messageService.createMessage(message);
     
-            if (createdMessage != null) {
-                context.status(200).json(createdMessage); // Changed from 201 to 200 to match test cases
-            } else {
-                context.status(400).result("Message creation failed.");
+            if (createdMessage == null || createdMessage.getMessage_id() <= 0) {
+                context.status(500).result("");
+                return;
             }
-        } catch (IllegalArgumentException e) {
-            context.status(400).result(e.getMessage());
+    
+            context.status(200).json(createdMessage);
         } catch (Exception e) {
-            context.status(500).result("Error creating message: " + e.getMessage());
+            e.printStackTrace();
+            context.status(500).result("");
         }
     }
 
@@ -133,15 +132,23 @@ public class SocialMediaController {
 
     private void deleteMessageById(Context context) {
         try {
+            // Get the message ID from the URL
             int messageId = Integer.parseInt(context.pathParam("message_id"));
-            boolean deleted = messageService.deleteMessageById(messageId);
-            if (deleted) {
-                context.status(200).result("Message deleted successfully.");
-            } else {
-                context.status(404).result("Message not found.");
+            
+            // Check if the message exists
+            Message message = messageService.getMessageById(messageId);
+            if (message == null) {
+                context.status(200).result(""); // Message not found, return status 200 with empty body
+                return;
             }
+            
+            // Delete the message
+            messageService.deleteMessageById(messageId);
+            
+            // Return the deleted message
+            context.status(200).json(message);
         } catch (Exception e) {
-            context.status(500).result("Error deleting message: " + e.getMessage());
+            context.status(500).result(""); // Server error
         }
     }
 
@@ -167,10 +174,10 @@ public class SocialMediaController {
         try {
             int accountId = Integer.parseInt(context.pathParam("account_id"));
             List<Message> messages = messageService.getMessagesByUserId(accountId);
-            if (!messages.isEmpty()) {
-                context.status(200).json(messages);
+            if (messages.isEmpty()) {
+                context.status(200).json(messages); // Return status 200 with empty list
             } else {
-                context.status(404).result("No messages found for this user.");
+                context.status(200).json(messages);
             }
         } catch (Exception e) {
             context.status(500).result("Error retrieving user messages: " + e.getMessage());

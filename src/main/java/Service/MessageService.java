@@ -57,5 +57,6 @@ public class MessageService {
     public List<Message> getMessagesByUserId(int accountId) throws SQLException {
         return messageDAO.getMessagesByUserId(accountId);
     }
+    
 
 }

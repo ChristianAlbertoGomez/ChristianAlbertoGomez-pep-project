@@ -32,14 +32,18 @@ public class MessageDAO {
     public List<Message> getAllMessages() throws SQLException {
 
         List<Message> messages = new ArrayList<>();
-        String query = "SELECT * FROM Message";
+        String query = "SELECT * FROM message";
+        
         try (Connection conn = ConnectionUtil.getConnection(); 
-            Statement stmt = conn.createStatement(); 
-            ResultSet rs = stmt.executeQuery(query)) {
+             Statement stmt = conn.createStatement(); 
+             ResultSet rs = stmt.executeQuery(query)) {
+            
             while (rs.next()) {
-                messages.add(new Message(rs.getInt("message_id"), rs.getInt("posted_by"), rs.getString("message_text"), rs.getLong("time_posted_epoch")));
+                messages.add(new Message(rs.getInt("message_id"), rs.getInt("posted_by"), 
+                                         rs.getString("message_text"), rs.getLong("time_posted_epoch")));
             }
         }
+        
         return messages;
     }
 
