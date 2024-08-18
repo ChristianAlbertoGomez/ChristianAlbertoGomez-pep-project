@@ -123,7 +123,7 @@ public class SocialMediaController {
             if (message != null) {
                 context.status(200).json(message);
             } else {
-                context.status(200).result(""); // Estado 200 con cuerpo vacío
+                context.status(200).result("");
             }
         } catch (Exception e) {
             context.status(500).result("Error retrieving message: " + e.getMessage());
@@ -155,26 +155,18 @@ public class SocialMediaController {
     private void updateMessageById(Context context) {
         try {
             Message message = context.bodyAsClass(Message.class);
-    
-            // Validar que el texto del mensaje no esté vacío y no exceda el límite
             if (message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() > 255) {
                 context.status(400).result("Message text cannot be empty and must be under 255 characters.");
                 return;
             }
-    
-            // Buscar el mensaje existente
             Message existingMessage = messageService.getMessageById(message.getMessage_id());
             if (existingMessage == null) {
                 context.status(400).result("Message not found.");
                 return;
             }
-    
-            // Actualizar el mensaje
             message.setPosted_by(existingMessage.getPosted_by()); // Preservar información original
             message.setTime_posted_epoch(existingMessage.getTime_posted_epoch()); // Preservar el timestamp original
             Message updatedMessage = messageService.updateMessage(message);
-    
-            // Devolver el mensaje actualizado
             context.status(200).json(updatedMessage);
         } catch (Exception e) {
             context.status(500).result("Error updating message: " + e.getMessage());
