@@ -33,12 +33,29 @@ public class SocialMediaController {
     private void registerUser(Context context) {
         try {
             Account account = context.bodyAsClass(Account.class);
+    
+            // Check for blank username
+            if (account.getUsername() == null || account.getUsername().isBlank()) {
+                context.status(400).result(""); // Return 400 for blank username
+                return;
+            }
+    
+            // Check for short password
+            if (account.getPassword() == null || account.getPassword().length() < 4) {
+                context.status(400).result(""); // Return 400 for short password
+                return;
+            }
+    
+            // Register the account
             Account createdAccount = accountService.registerAccount(account);
             if (createdAccount != null) {
-                context.status(201).json(createdAccount);
+                context.status(200).json(createdAccount); // Use 200 for successful registration
             } else {
-                context.status(400).result("Account registration failed.");
+                context.status(400).result(""); // Handle any other issues that arise
             }
+    
+        } catch (IllegalArgumentException e) {
+            context.status(400).result(""); // Return 400 for validation issues (like duplicate username)
         } catch (Exception e) {
             context.status(500).result("Error registering user: " + e.getMessage());
         }
