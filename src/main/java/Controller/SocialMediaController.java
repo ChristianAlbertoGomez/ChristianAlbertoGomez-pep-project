@@ -51,8 +51,10 @@ public class SocialMediaController {
             if (loggedInAccount != null) {
                 context.status(200).json(loggedInAccount);
             } else {
-                context.status(401).result("Invalid username or password.");
+                context.status(401).result(""); // This line may be unnecessary if loginAccount() always returns an Account or throws an exception
             }
+        } catch (IllegalArgumentException e) {
+            context.status(401).result(""); // Set status to 401 for invalid credentials
         } catch (Exception e) {
             context.status(500).result("Error logging in user: " + e.getMessage());
         }
