@@ -12,7 +12,7 @@ public class SocialMediaController {
 
     private final AccountService accountService = new AccountService();
     private final MessageService messageService = new MessageService();
-    private final int num = 0;
+
 
     public Javalin startAPI() {
         Javalin app = Javalin.create();
