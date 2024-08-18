@@ -28,12 +28,13 @@ public class MessageService {
         return messageDAO.getMessageById(messageId);
     }
 
-    public void deleteMessageById(int messageId) throws SQLException {
+    public boolean deleteMessageById(int messageId) throws SQLException {
         Message message = messageDAO.getMessageById(messageId);
         if (message == null) {
-            return; // Handle the case where the message doesn't exist
+            return false; // Handle the case where the message doesn't exist
         }
         messageDAO.deleteMessageById(messageId);
+        return true;
     }
 
     public Message updateMessage(Message message) throws SQLException {
