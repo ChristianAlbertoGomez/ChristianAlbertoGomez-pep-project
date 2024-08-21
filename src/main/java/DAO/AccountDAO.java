@@ -1,18 +1,31 @@
 package DAO;
+
 import Util.ConnectionUtil;
 import java.sql.*;
 import Model.Account;
 
-public class AccountDAO{
-    /*
-     * The following methods are connected with the database. These methods are related with Account actions.
-     */
+/**
+ * AccountDAO.java
+ * 
+ * Created and documented by Christian Alberto Gomez
+ * Date: August 21, 2024
+ * 
+ * This class handles database operations related to Account actions. It provides methods for creating an account, 
+ * retrieving accounts by username or ID, and other related actions. The class uses JDBC for database interactions.
+ */
+public class AccountDAO {
 
-     public Account createAccount(Account account)throws SQLException{
-        
+    /**
+     * Creates a new account in the database and returns the created account with the generated ID.
+     * 
+     * @param account the Account object to be created
+     * @return the created Account object with its ID set
+     * @throws SQLException if a database access error occurs
+     */
+    public Account createAccount(Account account) throws SQLException {
         String query = "INSERT INTO Account (username, password) VALUES (?, ?)";
         try (Connection conn = ConnectionUtil.getConnection(); 
-            PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, account.getUsername());
             pstmt.setString(2, account.getPassword());
             pstmt.executeUpdate();
@@ -24,13 +37,19 @@ public class AccountDAO{
             }
         }
         return account;
-     }
+    }
 
-     public Account getAccountByUsername(String username)throws SQLException{
-
+    /**
+     * Retrieves an account from the database by its username.
+     * 
+     * @param username the username of the account to be retrieved
+     * @return the Account object with the specified username, or null if not found
+     * @throws SQLException if a database access error occurs
+     */
+    public Account getAccountByUsername(String username) throws SQLException {
         String query = "SELECT * FROM Account WHERE username = ?";
         try (Connection conn = ConnectionUtil.getConnection(); 
-            PreparedStatement pstmt = conn.prepareStatement(query)) {
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, username);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -39,12 +58,19 @@ public class AccountDAO{
             }
         }
         return null;
-     }
+    }
 
-     public Account getAccountById(int accountId) throws SQLException {
-        
+    /**
+     * Retrieves an account from the database by its ID.
+     * 
+     * @param accountId the ID of the account to be retrieved
+     * @return the Account object with the specified ID, or null if not found
+     * @throws SQLException if a database access error occurs
+     */
+    public Account getAccountById(int accountId) throws SQLException {
         String query = "SELECT * FROM Account WHERE account_id = ?";
-        try (Connection conn = ConnectionUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+        try (Connection conn = ConnectionUtil.getConnection(); 
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, accountId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {

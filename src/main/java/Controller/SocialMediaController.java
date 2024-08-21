@@ -7,12 +7,32 @@ import Service.MessageService;
 import Model.Account;
 import Model.Message;
 import java.util.List;
+import java.sql.*;
+import java.io.IOException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+
+/**
+ * SocialMediaController.java
+ * 
+ * Created and documented by Christian Alberto Gomez
+ * Date: August 21, 2024
+ * 
+ * This class handles the HTTP requests for the Social Media API, including user registration, login, message creation, 
+ * retrieval, updating, and deletion, as well as fetching messages by user ID. It uses Javalin for handling requests 
+ * and responses and services for business logic.
+ */
 public class SocialMediaController {
 
     private final AccountService accountService = new AccountService();
     private final MessageService messageService = new MessageService();
 
+    /**
+     * Starts the Javalin API with the defined endpoints.
+     * 
+     * @return the Javalin app instance
+     */
     public Javalin startAPI() {
         Javalin app = Javalin.create();
         app.get("/example-endpoint", this::exampleHandler);
@@ -29,6 +49,11 @@ public class SocialMediaController {
         return app;
     }
 
+    /**
+     * Handles user registration by validating input and creating a new account.
+     * 
+     * @param context the Javalin context
+     */
     private void registerUser(Context context) {
         try {
             Account account = context.bodyAsClass(Account.class);
@@ -60,6 +85,11 @@ public class SocialMediaController {
         }
     }
 
+    /**
+     * Handles user login by validating credentials and returning account details.
+     * 
+     * @param context the Javalin context
+     */
     private void loginUser(Context context) {
         try {
             Account account = context.bodyAsClass(Account.class);
@@ -76,6 +106,11 @@ public class SocialMediaController {
         }
     }
 
+    /**
+     * Creates a new message after validating input and checking account existence.
+     * 
+     * @param context the Javalin context
+     */
     private void createMessage(Context context) {
         try {
             Message message = context.bodyAsClass(Message.class);
@@ -107,6 +142,11 @@ public class SocialMediaController {
         }
     }
 
+    /**
+     * Retrieves all messages and returns them in JSON format.
+     * 
+     * @param context the Javalin context
+     */
     private void getAllMessages(Context context) {
         try {
             List<Message> messages = messageService.getAllMessages();
@@ -116,6 +156,11 @@ public class SocialMediaController {
         }
     }
 
+    /**
+     * Retrieves a message by its ID and returns it in JSON format.
+     * 
+     * @param context the Javalin context
+     */
     private void getMessageById(Context context) {
         try {
             int messageId = Integer.parseInt(context.pathParam("message_id"));
@@ -130,6 +175,11 @@ public class SocialMediaController {
         }
     }
 
+    /**
+     * Deletes a message by its ID and returns the deleted message in JSON format.
+     * 
+     * @param context the Javalin context
+     */
     private void deleteMessageById(Context context) {
         try {
             // Get the message ID from the URL
@@ -152,27 +202,65 @@ public class SocialMediaController {
         }
     }
 
+    /**
+     * Updates a message by its ID with new text from the request.
+     * 
+     * @param context the Javalin context
+     */
     private void updateMessageById(Context context) {
+        int messageId = Integer.parseInt(context.pathParam("message_id"));
+    
+        Message message;
         try {
-            Message message = context.bodyAsClass(Message.class);
-            if (message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() > 255) {
-                context.status(400).result("Message text cannot be empty and must be under 255 characters.");
+            message = messageService.getMessageById(messageId);
+            if (message == null) {
+                context.status(400); // 400 Bad Request if the message does not exist
                 return;
             }
-            Message existingMessage = messageService.getMessageById(message.getMessage_id());
-            if (existingMessage == null) {
-                context.status(400).result("Message not found.");
-                return;
-            }
-            message.setPosted_by(existingMessage.getPosted_by()); // Preservar información original
-            message.setTime_posted_epoch(existingMessage.getTime_posted_epoch()); // Preservar el timestamp original
-            Message updatedMessage = messageService.updateMessage(message);
-            context.status(200).json(updatedMessage);
-        } catch (Exception e) {
-            context.status(500).result("Error updating message: " + e.getMessage());
+        } catch (SQLException e) {
+            context.status(500).result("Database error occurred"); // 500 Internal Server Error
+            return;
         }
+    
+        // Obtain the message text from the request body
+        String requestBody = context.body();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode;
+        String messageText;
+    
+        try {
+            jsonNode = mapper.readTree(requestBody);
+            messageText = jsonNode.get("message_text").asText();
+        } catch (IOException e) {
+            context.status(400).result("Invalid JSON"); 
+            return;
+        }
+    
+        if (messageText == null || messageText.trim().isEmpty()) {
+            context.status(400); // 400 Bad Request if the text is empty
+            return;
+        }
+    
+        if (messageText.length() > 255) {
+            context.status(400); // 400 Bad Request if the text is too long
+            return;
+        }
+    
+        message.setMessage_text(messageText);
+        try {
+            messageService.updateMessage(message);
+        } catch (SQLException e) {
+            context.status(500).result("Database error occurred during update"); // 500 Internal Server Error
+            return;
+        }
+        context.status(200).json(message); // Return the updated message
     }
 
+    /**
+     * Retrieves messages for a specific user by their account ID.
+     * 
+     * @param context the Javalin context
+     */
     private void getMessagesByUserId(Context context) {
         try {
             int accountId = Integer.parseInt(context.pathParam("account_id"));
@@ -185,8 +273,14 @@ public class SocialMediaController {
         } catch (Exception e) {
             context.status(500).result("Error retrieving user messages: " + e.getMessage());
         }
+   
     }
 
+    /**
+     * A sample endpoint for testing purposes.
+     * 
+     * @param context the Javalin context
+     */
     private void exampleHandler(Context context) {
         context.json("sample text");
     }
